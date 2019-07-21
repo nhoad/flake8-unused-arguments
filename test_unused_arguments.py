@@ -58,3 +58,20 @@ def test_get_unused_arguments(function, expected_names):
     print(argument_names)
     print(expected_names)
     assert argument_names == expected_names
+
+
+def test_get_decorator_names():
+    from flake8_unused_arguments import FunctionFinder, get_decorator_names
+
+    function = """
+@a
+@thing.b
+@thing.c()
+def foo():
+    pass
+"""
+
+    finder = FunctionFinder()
+    finder.visit(ast.parse(textwrap.dedent(function)))
+    function_names = list(get_decorator_names(finder.functions[0]))
+    assert function_names == ["a", "b", "c"]
