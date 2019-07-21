@@ -60,18 +60,20 @@ def test_get_unused_arguments(function, expected_names):
     assert argument_names == expected_names
 
 
-def test_get_decorator_names():
+@pytest.mark.parametrize("function, expected_result", [
+    ("""
+    @a
+    @thing.b
+    @thing.c()
+    def foo():
+        pass
+    """, ["a", "b", "c"]),
+    ("lambda g: 5", []),
+])
+def test_get_decorator_names(function, expected_result):
     from flake8_unused_arguments import FunctionFinder, get_decorator_names
-
-    function = """
-@a
-@thing.b
-@thing.c()
-def foo():
-    pass
-"""
 
     finder = FunctionFinder()
     finder.visit(ast.parse(textwrap.dedent(function)))
     function_names = list(get_decorator_names(finder.functions[0]))
-    assert function_names == ["a", "b", "c"]
+    assert function_names == expected_result

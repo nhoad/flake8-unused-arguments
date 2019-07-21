@@ -135,6 +135,9 @@ def get_argument_names(function: FunctionTypes) -> Set[str]:
 
 
 def get_decorator_names(function: FunctionTypes) -> Iterable[str]:
+    if isinstance(function, ast.Lambda):
+        return
+
     for decorator in function.decorator_list:
         if isinstance(decorator, ast.Name):
             yield decorator.id
