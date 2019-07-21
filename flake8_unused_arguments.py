@@ -1,6 +1,9 @@
 import ast
+import optparse
 from ast import NodeVisitor, Store
 from typing import Iterable, List, Set, Tuple, Union
+
+import flake8.options.manager
 
 
 FunctionTypes = Union[ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda]
@@ -19,7 +22,7 @@ class Plugin:
         self.tree = tree
 
     @classmethod
-    def add_options(cls, option_manager):
+    def add_options(cls, option_manager: flake8.options.manager.OptionManager) -> None:
         option_manager.add_option(
             "--unused-arguments-ignore-abstract-functions",
             action="store_true",
@@ -48,7 +51,7 @@ class Plugin:
         )
 
     @classmethod
-    def parse_options(cls, options):
+    def parse_options(cls, options: optparse.Values) -> None:
         cls.ignore_abstract = options.unused_arguments_ignore_abstract_functions
         cls.ignore_stubs = options.unused_arguments_ignore_stub_functions
         cls.ignore_variadic_names = options.unused_arguments_ignore_variadic_names
