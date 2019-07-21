@@ -18,6 +18,41 @@ class Plugin:
     def __init__(self, tree: ast.Module):
         self.tree = tree
 
+    @classmethod
+    def add_options(cls, option_manager):
+        option_manager.add_option(
+            "--unused-arguments-ignore-abstract-functions",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_abstract,
+            dest="unused_arguments_ignore_abstract_functions",
+            help="If provided, then unused arguments for functions decorated with abstractmethod will be ignored.",
+        )
+
+        option_manager.add_option(
+            "--unused-arguments-ignore-stub-functions",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_stubs,
+            dest="unused_arguments_ignore_stub_functions",
+            help="If provided, then unused arguments for functions that are only a pass statement will be ignored.",
+        )
+
+        option_manager.add_option(
+            "--unused-arguments-ignore-unused-variadic-names",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_variadic_names,
+            dest="unused_arguments_ignore_variadic_names",
+            help="If provided, then unused *args and **kwargs won't produce warnings.",
+        )
+
+    @classmethod
+    def parse_options(cls, options):
+        cls.ignore_abstract = options.unused_arguments_ignore_abstract_functions
+        cls.ignore_stubs = options.unused_arguments_ignore_stub_functions
+        cls.ignore_variadic_names = options.unused_arguments_ignore_variadic_names
+
     def run(self) -> Iterable[LintResult]:
         finder = FunctionFinder()
         finder.visit(self.tree)
