@@ -1,6 +1,6 @@
 import ast
 from ast import NodeVisitor, Store
-from typing import Iterable, List, Tuple, Union
+from typing import Iterable, List, Set, Tuple, Union
 
 
 FunctionTypes = Union[ast.AsyncFunctionDef, ast.FunctionDef, ast.Lambda]
@@ -17,25 +17,19 @@ class Plugin:
         self.tree = tree
 
     def run(self) -> Iterable[LintResult]:
-        functions: List[FunctionTypes] = []
+        finder = FunctionFinder()
+        finder.visit(self.tree)
 
-        class FunctionFinder(NodeVisitor):
-            def visit_AsyncFunctionDef(self, function: ast.AsyncFunctionDef) -> None:
-                functions.append(function)
-
-            def visit_FunctionDef(self, function: ast.FunctionDef) -> None:
-                functions.append(function)
-
-            def visit_Lambda(self, function: ast.Lambda) -> None:
-                functions.append(function)
-
-        FunctionFinder().visit(self.tree)
-
-        for function in functions:
-            yield from check_function(function)
+        for function in finder.functions:
+            for name in get_unused_arguments(function):
+                line_number = function.lineno
+                offset = function.col_offset
+                text = f"{ERROR_CODE} Unused argument '{name}'"
+                check = "unused argument"
+                yield (line_number, offset, text, check)
 
 
-def check_function(function: FunctionTypes) -> Iterable[LintResult]:
+def get_unused_arguments(function: FunctionTypes) -> Set[str]:
     """Generator that yields all of the unused arguments in the given function."""
     names = get_argument_names(function)
 
@@ -49,32 +43,44 @@ def check_function(function: FunctionTypes) -> Iterable[LintResult]:
 
     NameFinder().visit(function)
 
-    for name in names:
-        line_number = function.lineno
-        offset = function.col_offset
-        text = f"{ERROR_CODE} Unused argument '{name}'"
-        check = "unused argument"
-        yield (line_number, offset, text, check)
+    return names
 
 
-def get_argument_names(function: FunctionTypes) -> List[str]:
+def get_argument_names(function: FunctionTypes) -> Set[str]:
     """Get all of the argument names of the given function."""
     args = function.args
 
-    names: List[str] = []
+    names: Set[str] = set()
 
     # plain old args
-    names.extend(arg.arg for arg in args.args)
+    names.update(arg.arg for arg in args.args)
 
     # *arg name
     if args.vararg is not None:
-        names.append(args.vararg.arg)
+        names.add(args.vararg.arg)
 
     # **kwarg name
     if args.kwarg is not None:
-        names.append(args.kwarg.arg)
+        names.add(args.kwarg.arg)
 
     # *, key, word, only, args
-    names.extend(arg.arg for arg in args.kwonlyargs)
+    names.update(arg.arg for arg in args.kwonlyargs)
 
     return names
+
+
+class FunctionFinder(NodeVisitor):
+    functions: List[FunctionTypes]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.functions = []
+
+    def visit_AsyncFunctionDef(self, function: ast.AsyncFunctionDef) -> None:
+        self.functions.append(function)
+
+    def visit_FunctionDef(self, function: ast.FunctionDef) -> None:
+        self.functions.append(function)
+
+    def visit_Lambda(self, function: ast.Lambda) -> None:
+        self.functions.append(function)
