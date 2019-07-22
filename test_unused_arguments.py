@@ -1,5 +1,7 @@
 import ast
 import textwrap
+from contextlib import nullcontext
+from unittest.mock import patch
 
 import pytest
 
@@ -25,11 +27,9 @@ import pytest
     ("l = lambda g: 5", {"g"}),
 ])
 def test_get_argument_names(function, expected_names):
-    from flake8_unused_arguments import FunctionFinder, get_argument_names
+    from flake8_unused_arguments import get_argument_names
 
-    finder = FunctionFinder()
-    finder.visit(ast.parse(textwrap.dedent(function)))
-    argument_names = get_argument_names(finder.functions[0])
+    argument_names = get_argument_names(get_function(function))
     print(argument_names)
     print(expected_names)
     assert argument_names == expected_names
@@ -50,11 +50,9 @@ def test_get_argument_names(function, expected_names):
     ("l = lambda g: 5", {"g"}),
 ])
 def test_get_unused_arguments(function, expected_names):
-    from flake8_unused_arguments import FunctionFinder, get_unused_arguments
+    from flake8_unused_arguments import get_unused_arguments
 
-    finder = FunctionFinder()
-    finder.visit(ast.parse(textwrap.dedent(function)))
-    argument_names = get_unused_arguments(finder.functions[0])
+    argument_names = get_unused_arguments(get_function(function))
     print(argument_names)
     print(expected_names)
     assert argument_names == expected_names
@@ -72,11 +70,9 @@ def test_get_unused_arguments(function, expected_names):
     ("lambda g: 5", []),
 ])
 def test_get_decorator_names(function, expected_result):
-    from flake8_unused_arguments import FunctionFinder, get_decorator_names
+    from flake8_unused_arguments import get_decorator_names
 
-    finder = FunctionFinder()
-    finder.visit(ast.parse(textwrap.dedent(function)))
-    function_names = list(get_decorator_names(finder.functions[0]))
+    function_names = list(get_decorator_names(get_function(function)))
     assert function_names == expected_result
 
 
@@ -100,7 +96,62 @@ def test_get_decorator_names(function, expected_result):
     """, False),
 ])
 def test_is_stub_function(function, expected_result):
-    from flake8_unused_arguments import FunctionFinder, is_stub_function
+    from flake8_unused_arguments import is_stub_function
+    assert is_stub_function(get_function(function)) == expected_result
+
+
+@pytest.mark.parametrize("function, options, expected_warnings", [
+    ("""
+    @abstractmethod
+    def foo(a):
+        pass
+    """, {"ignore_abstract": False}, [(2, 0, "U100 Unused argument 'a'", 'unused argument')]),
+    ("""
+    @abstractmethod
+    def foo(a):
+        pass
+    """, {"ignore_abstract": True}, []),
+    ("""
+    def foo(a):
+        pass
+    """, {"ignore_stubs": False}, [(2, 0, "U100 Unused argument 'a'", 'unused argument')]),
+    ("""
+    def foo(a):
+        pass
+    """, {"ignore_stubs": True}, []),
+    ("""
+    def foo(*args):
+        pass
+    """, {"ignore_variadic_names": True}, []),
+    ("""
+    def foo(**kwargs):
+        pass
+    """, {"ignore_variadic_names": True}, []),
+    ("""
+    def foo(*args):
+        pass
+    """, {"ignore_variadic_names": False}, [(2, 0, "U100 Unused argument 'args'", 'unused argument')]),
+    ("""
+    def foo(**kwargs):
+        pass
+    """, {"ignore_variadic_names": False}, [(2, 0, "U100 Unused argument 'kwargs'", 'unused argument')]),
+    ("""
+    def foo(_a):
+        pass
+    """, {}, [(2, 0, "U101 Unused argument '_a'", 'unused argument')]),
+])
+def test_integration(function, options, expected_warnings):
+    from flake8_unused_arguments import FunctionFinder, Plugin
+
+    with patch.multiple(Plugin, **options) if options else nullcontext():
+        plugin = Plugin(ast.parse(textwrap.dedent(function)))
+        warnings = list(plugin.run())
+        print(warnings)
+        assert warnings == expected_warnings
+
+
+def get_function(text):
+    from flake8_unused_arguments import FunctionFinder
     finder = FunctionFinder()
-    finder.visit(ast.parse(textwrap.dedent(function)))
-    assert is_stub_function(finder.functions[0]) == expected_result
+    finder.visit(ast.parse(textwrap.dedent(text)))
+    return finder.functions[0]
