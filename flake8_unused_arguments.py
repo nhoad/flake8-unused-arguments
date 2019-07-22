@@ -42,7 +42,7 @@ class Plugin:
         )
 
         option_manager.add_option(
-            "--unused-arguments-ignore-unused-variadic-names",
+            "--unused-arguments-ignore-variadic-names",
             action="store_true",
             parse_from_config=True,
             default=cls.ignore_variadic_names,
