@@ -65,9 +65,10 @@ def test_get_unused_arguments(function, expected_names):
     @a
     @thing.b
     @thing.c()
+    @d()
     def foo():
         pass
-    """, ["a", "b", "c"]),
+    """, ["a", "b", "c", "d"]),
     ("lambda g: 5", []),
 ])
 def test_get_decorator_names(function, expected_result):

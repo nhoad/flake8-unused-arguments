@@ -139,7 +139,10 @@ def get_decorator_names(function: FunctionTypes) -> Iterable[str]:
         elif isinstance(decorator, ast.Attribute):
             yield decorator.attr
         elif isinstance(decorator, ast.Call):
-            yield decorator.func.attr
+            if isinstance(decorator.func, ast.Name):
+                yield decorator.func.id
+            else:
+                yield decorator.func.attr
         else:
             assert False, decorator
 
