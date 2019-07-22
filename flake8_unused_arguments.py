@@ -66,13 +66,8 @@ class Plugin:
                 continue
 
             # ignore stub functions
-            if self.ignore_stubs and len(function.body) == 1:
-                statement = function.body[0]
-                if isinstance(statement, ast.Pass):
-                    continue
-                if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Ellipsis):
-                    continue
-                # FIXME: ignore if the function is raise NotImplementedError()
+            if self.ignore_stubs and is_stub_function(function):
+                continue
 
             for name in get_unused_arguments(function):
                 if self.ignore_variadic_names:
@@ -147,6 +142,23 @@ def get_decorator_names(function: FunctionTypes) -> Iterable[str]:
             yield decorator.func.attr
         else:
             assert False, decorator
+
+
+def is_stub_function(function: FunctionTypes) -> bool:
+    if isinstance(function, ast.Lambda):
+        return isinstance(function.body, ast.Ellipsis)
+
+    if (not isinstance(function, ast.Lambda)) and len(function.body) > 1:
+        return False
+
+    statement = function.body[0]
+    if isinstance(statement, ast.Pass):
+        return True
+    if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Ellipsis):
+        return True
+    # FIXME: ignore if the function is raise NotImplementedError()
+
+    return False
 
 
 class FunctionFinder(NodeVisitor):

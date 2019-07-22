@@ -77,3 +77,29 @@ def test_get_decorator_names(function, expected_result):
     finder.visit(ast.parse(textwrap.dedent(function)))
     function_names = list(get_decorator_names(finder.functions[0]))
     assert function_names == expected_result
+
+
+@pytest.mark.parametrize("function, expected_result", [
+    ("def foo(): pass", True),
+    ("def foo(): ...", True),
+    ("def foo(): return 5", False),
+    ("lambda: ...", True),
+    ("lambda: 5", False),
+    ("""
+    def foo():
+        a = 5
+        return 5
+    """, False),
+    ("""
+    def foo():
+        if 5:
+            return
+        else:
+            return
+    """, False),
+])
+def test_is_stub_function(function, expected_result):
+    from flake8_unused_arguments import FunctionFinder, is_stub_function
+    finder = FunctionFinder()
+    finder.visit(ast.parse(textwrap.dedent(function)))
+    assert is_stub_function(finder.functions[0]) == expected_result
