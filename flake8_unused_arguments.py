@@ -73,7 +73,7 @@ class Plugin:
                 if self.ignore_variadic_names:
                     if function.args.vararg and function.args.vararg.arg == name:
                         continue
-                    if function.args.kwarg.arg and function.args.kwarg.arg == name:
+                    if function.args.kwarg and function.args.kwarg.arg == name:
                         continue
 
                 line_number = function.lineno
