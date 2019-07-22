@@ -62,7 +62,9 @@ class Plugin:
 
         for function in finder.functions:
             # ignore abtractmethods, it's not a surprise when they're empty
-            if self.ignore_abstract and any(name == "abstractmethod" for name in get_decorator_names(function)):
+            if self.ignore_abstract and any(
+                name == "abstractmethod" for name in get_decorator_names(function)
+            ):
                 continue
 
             # ignore stub functions
@@ -79,12 +81,14 @@ class Plugin:
                 line_number = function.lineno
                 offset = function.col_offset
 
-                if name.startswith('_'):
+                if name.startswith("_"):
                     error_code = "U101"
                 else:
                     error_code = "U100"
 
-                text = "{error_code} Unused argument '{name}'".format(error_code=error_code, name=name)
+                text = "{error_code} Unused argument '{name}'".format(
+                    error_code=error_code, name=name
+                )
                 check = "unused argument"
                 yield (line_number, offset, text, check)
 
