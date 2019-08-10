@@ -61,22 +61,25 @@ class Plugin:
         finder.visit(self.tree)
 
         for function in finder.functions:
+            decorator_names = set(get_decorator_names(function))
             # ignore abtractmethods, it's not a surprise when they're empty
-            if self.ignore_abstract and any(
-                name == "abstractmethod" for name in get_decorator_names(function)
-            ):
+            if self.ignore_abstract and "abstractmethod" in decorator_names:
                 continue
 
             # ignore stub functions
             if self.ignore_stubs and is_stub_function(function):
                 continue
 
-            for name in get_unused_arguments(function):
+            for i, name in enumerate(get_unused_arguments(function)):
                 if self.ignore_variadic_names:
                     if function.args.vararg and function.args.vararg.arg == name:
                         continue
                     if function.args.kwarg and function.args.kwarg.arg == name:
                         continue
+
+                # ignore self or whatever the first argument is for a classmethod
+                if i == 0 and (name == "self" or "classmethod" in decorator_names):
+                    continue
 
                 line_number = function.lineno
                 offset = function.col_offset
