@@ -93,7 +93,7 @@ class Plugin:
                 yield (line_number, offset, text, check)
 
 
-def get_unused_arguments(function: FunctionTypes) -> Set[str]:
+def get_unused_arguments(function: FunctionTypes) -> List[str]:
     """Generator that yields all of the unused arguments in the given function."""
     names = get_argument_names(function)
 
@@ -110,25 +110,25 @@ def get_unused_arguments(function: FunctionTypes) -> Set[str]:
     return names
 
 
-def get_argument_names(function: FunctionTypes) -> Set[str]:
+def get_argument_names(function: FunctionTypes) -> List[str]:
     """Get all of the argument names of the given function."""
     args = function.args
 
-    names: Set[str] = set()
+    names: List[str] = []
 
     # plain old args
-    names.update(arg.arg for arg in args.args)
+    names.extend(arg.arg for arg in args.args)
 
     # *arg name
     if args.vararg is not None:
-        names.add(args.vararg.arg)
+        names.append(args.vararg.arg)
+
+    # *, key, word, only, args
+    names.extend(arg.arg for arg in args.kwonlyargs)
 
     # **kwarg name
     if args.kwarg is not None:
-        names.add(args.kwarg.arg)
-
-    # *, key, word, only, args
-    names.update(arg.arg for arg in args.kwonlyargs)
+        names.append(args.kwarg.arg)
 
     return names
 
