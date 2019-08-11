@@ -12,7 +12,7 @@ setup(
     author="Nathan Hoad",
     author_email="nathan@hoad.io",
     modules=["flake8_unused_arguments"],
-    url="https://github.com/nathan-hoad/flake8-unused-arguments",
+    url="https://github.com/nhoad/flake8-unused-arguments",
     install_requires=requires,
     entry_points={
         "flake8.extension": ["U10 = flake8_unused_arguments:Plugin"],
