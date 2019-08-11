@@ -150,7 +150,7 @@ def test_is_stub_function(function, expected_result):
     """, {}, []),
 ])
 def test_integration(function, options, expected_warnings):
-    from flake8_unused_arguments import FunctionFinder, Plugin
+    from flake8_unused_arguments import Plugin
 
     with patch.multiple(Plugin, **options) if options else nullcontext():
         plugin = Plugin(ast.parse(textwrap.dedent(function)))
