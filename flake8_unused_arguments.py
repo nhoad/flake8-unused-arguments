@@ -1,7 +1,7 @@
 import ast
 import optparse
 from ast import NodeVisitor, Store
-from typing import Iterable, List, Set, Tuple, Union
+from typing import Iterable, List, Tuple, Union
 
 import flake8.options.manager
 
