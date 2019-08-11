@@ -80,6 +80,12 @@ def test_get_decorator_names(function, expected_result):
     ("def foo(): pass", True),
     ("def foo(): ...", True),
     ("def foo(): return 5", False),
+    ("def foo(): raise NotImplementedError()", True),
+    ("def foo(): raise NotImplementedError", True),
+    ("def foo(): raise NotImplementedError()", True),
+    ("def foo(): raise NotImplementedError", True),
+    ("def foo(): raise SomethingElse()", False),
+    ("def foo(): raise", False),
     ("lambda: ...", True),
     ("lambda: 5", False),
     ("""

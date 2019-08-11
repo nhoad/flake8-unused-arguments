@@ -166,7 +166,19 @@ def is_stub_function(function: FunctionTypes) -> bool:
         return True
     if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Ellipsis):
         return True
-    # FIXME: ignore if the function is raise NotImplementedError()
+
+    if isinstance(statement, ast.Raise):
+        if (
+            isinstance(statement.exc, ast.Call)
+            and statement.exc.func.id == "NotImplementedError"
+        ):
+            return True
+
+        elif (
+            isinstance(statement.exc, ast.Name)
+            and statement.exc.id == "NotImplementedError"
+        ):
+            return True
 
     return False
 
