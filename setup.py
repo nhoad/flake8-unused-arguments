@@ -5,7 +5,7 @@ requires = [
 ]
 
 setup(
-    name="flake8_unused_arguments",
+    name="flake8-unused-arguments",
     license="MIT",
     version="0.0.1",
     description="flake8 extension to warn on unused function arguments",
