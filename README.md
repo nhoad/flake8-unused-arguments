@@ -11,3 +11,15 @@ Configuration options also exist:
  - `unused-arguments-ignore-abstract-functions` - don't show warnings for abstract functions.
  - `unused-arguments-ignore-stub-functions` - don't show warnings for empty functions.
  - `unused-arguments-ignore-variadic-names` - don't show warnings for unused *args and **kwargs.
+
+
+## Changelog
+
+0.0.3
+ - treat functions that start with "raise NotImplementedError()" as stub functions
+
+0.0.2
+ - fixed error in packaging
+
+0.0.1
+ - initial release
