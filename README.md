@@ -15,6 +15,9 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.4
+ - Wrong project name in the readme, whoopsies
+
 0.0.3
  - treat functions that start with "raise NotImplementedError()" as stub functions
 
