@@ -1,4 +1,4 @@
-# flake8-import-order
+# flake8-unused-arguments
 
 A flake8 plugin that checks for unused function arguments.
 
