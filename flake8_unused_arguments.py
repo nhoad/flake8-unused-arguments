@@ -70,7 +70,8 @@ class Plugin:
             if self.ignore_stubs and is_stub_function(function):
                 continue
 
-            for i, name in enumerate(get_unused_arguments(function)):
+            for i, argument in enumerate(get_unused_arguments(function)):
+                name = argument.arg
                 if self.ignore_variadic_names:
                     if function.args.vararg and function.args.vararg.arg == name:
                         continue
@@ -81,8 +82,8 @@ class Plugin:
                 if i == 0 and (name == "self" or "classmethod" in decorator_names):
                     continue
 
-                line_number = function.lineno
-                offset = function.col_offset
+                line_number = argument.lineno
+                offset = argument.col_offset
 
                 if name.startswith("_"):
                     error_code = "U101"
@@ -96,44 +97,44 @@ class Plugin:
                 yield (line_number, offset, text, check)
 
 
-def get_unused_arguments(function: FunctionTypes) -> List[str]:
+def get_unused_arguments(function: FunctionTypes) -> List[ast.arg]:
     """Generator that yields all of the unused arguments in the given function."""
-    names = get_argument_names(function)
+    arguments = get_arguments(function)
 
     class NameFinder(NodeVisitor):
         def visit_Name(self, name: ast.Name) -> None:
+            nonlocal arguments
             if isinstance(name.ctx, Store):
                 return
 
-            if name.id in names:
-                names.remove(name.id)
+            arguments = [arg for arg in arguments if arg.arg != name.id]
 
     NameFinder().visit(function)
 
-    return names
+    return arguments
 
 
-def get_argument_names(function: FunctionTypes) -> List[str]:
+def get_arguments(function: FunctionTypes) -> List[ast.arg]:
     """Get all of the argument names of the given function."""
     args = function.args
 
-    names: List[str] = []
+    ordered_arguments: List[ast.arg] = []
 
     # plain old args
-    names.extend(arg.arg for arg in args.args)
+    ordered_arguments.extend(args.args)
 
     # *arg name
     if args.vararg is not None:
-        names.append(args.vararg.arg)
+        ordered_arguments.append(args.vararg)
 
     # *, key, word, only, args
-    names.extend(arg.arg for arg in args.kwonlyargs)
+    ordered_arguments.extend(args.kwonlyargs)
 
     # **kwarg name
     if args.kwarg is not None:
-        names.append(args.kwarg.arg)
+        ordered_arguments.append(args.kwarg)
 
-    return names
+    return ordered_arguments
 
 
 def get_decorator_names(function: FunctionTypes) -> Iterable[str]:
@@ -149,7 +150,7 @@ def get_decorator_names(function: FunctionTypes) -> Iterable[str]:
             if isinstance(decorator.func, ast.Name):
                 yield decorator.func.id
             else:
-                yield decorator.func.attr
+                yield decorator.func.attr  # type: ignore
         else:
             assert False, decorator
 
@@ -170,7 +171,7 @@ def is_stub_function(function: FunctionTypes) -> bool:
     if isinstance(statement, ast.Raise):
         if (
             isinstance(statement.exc, ast.Call)
-            and statement.exc.func.id == "NotImplementedError"
+            and statement.exc.func.id == "NotImplementedError"  # type: ignore
         ):
             return True
 

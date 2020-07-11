@@ -27,9 +27,9 @@ import pytest
     ("l = lambda g: 5", ["g"]),
 ])
 def test_get_argument_names(function, expected_names):
-    from flake8_unused_arguments import get_argument_names
+    from flake8_unused_arguments import get_arguments
 
-    argument_names = get_argument_names(get_function(function))
+    argument_names = [a.arg for a in get_arguments(get_function(function))]
     print(argument_names)
     print(expected_names)
     assert argument_names == expected_names
@@ -52,7 +52,7 @@ def test_get_argument_names(function, expected_names):
 def test_get_unused_arguments(function, expected_names):
     from flake8_unused_arguments import get_unused_arguments
 
-    argument_names = get_unused_arguments(get_function(function))
+    argument_names = [a.arg for a in get_unused_arguments(get_function(function))]
     print(argument_names)
     print(expected_names)
     assert argument_names == expected_names
@@ -111,7 +111,7 @@ def test_is_stub_function(function, expected_result):
     @abstractmethod
     def foo(a):
         pass
-    """, {"ignore_abstract": False}, [(2, 0, "U100 Unused argument 'a'", 'unused argument')]),
+    """, {"ignore_abstract": False}, [(3, 8, "U100 Unused argument 'a'", 'unused argument')]),
     ("""
     @abstractmethod
     def foo(a):
@@ -120,7 +120,7 @@ def test_is_stub_function(function, expected_result):
     ("""
     def foo(a):
         pass
-    """, {"ignore_stubs": False}, [(2, 0, "U100 Unused argument 'a'", 'unused argument')]),
+    """, {"ignore_stubs": False}, [(2, 8, "U100 Unused argument 'a'", 'unused argument')]),
     ("""
     def foo(a):
         pass
@@ -136,15 +136,15 @@ def test_is_stub_function(function, expected_result):
     ("""
     def foo(*args):
         pass
-    """, {"ignore_variadic_names": False}, [(2, 0, "U100 Unused argument 'args'", 'unused argument')]),
+    """, {"ignore_variadic_names": False}, [(2, 9, "U100 Unused argument 'args'", 'unused argument')]),
     ("""
     def foo(**kwargs):
         pass
-    """, {"ignore_variadic_names": False}, [(2, 0, "U100 Unused argument 'kwargs'", 'unused argument')]),
+    """, {"ignore_variadic_names": False}, [(2, 10, "U100 Unused argument 'kwargs'", 'unused argument')]),
     ("""
     def foo(_a):
         pass
-    """, {}, [(2, 0, "U101 Unused argument '_a'", 'unused argument')]),
+    """, {}, [(2, 8, "U101 Unused argument '_a'", 'unused argument')]),
     ("""
     def foo(self):
         pass
@@ -161,6 +161,7 @@ def test_integration(function, options, expected_warnings):
     with patch.multiple(Plugin, **options) if options else nullcontext():
         plugin = Plugin(ast.parse(textwrap.dedent(function)))
         warnings = list(plugin.run())
+        print(function)
         print(warnings)
         assert warnings == expected_warnings
 
