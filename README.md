@@ -15,6 +15,9 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.5
+ - The positions reported are now for the arguments themselves, rather than the function
+
 0.0.4
  - Wrong project name in the readme, whoopsies
 
