@@ -15,6 +15,10 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.6
+ - Stub functions that have docstrings are now correctly detected as stub functions
+ - Functions with only a docstring are considered stub functions
+
 0.0.5
  - The positions reported are now for the arguments themselves, rather than the function
 
