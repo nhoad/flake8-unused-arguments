@@ -159,10 +159,15 @@ def is_stub_function(function: FunctionTypes) -> bool:
     if isinstance(function, ast.Lambda):
         return isinstance(function.body, ast.Ellipsis)
 
-    if (not isinstance(function, ast.Lambda)) and len(function.body) > 1:
-        return False
-
     statement = function.body[0]
+    if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Str):
+        if len(function.body) > 1:
+            # first statement is a docstring, let's skip it
+            statement = function.body[1]
+        else:
+            # it's a function with only a docstring, that's a stub
+            return True
+
     if isinstance(statement, ast.Pass):
         return True
     if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Ellipsis):

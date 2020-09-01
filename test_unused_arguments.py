@@ -77,6 +77,12 @@ def test_get_decorator_names(function, expected_result):
 
 
 @pytest.mark.parametrize("function, expected_result", [
+    ("def foo():\n 'with docstring'\n pass", True),
+    ("def foo():\n 'with docstring'", True),
+    ("def foo():\n 'with docstring'\n ...", True),
+    ("def foo():\n 'with docstring'\n return 5", False),
+    ("def foo():\n 'string' + 'with docstring'\n ...", False),
+    ("def foo():\n f = 'string' + 'with docstring'\n ...", False),
     ("def foo(): pass", True),
     ("def foo(): ...", True),
     ("def foo(): return 5", False),
