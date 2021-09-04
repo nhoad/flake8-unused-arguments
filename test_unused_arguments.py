@@ -160,6 +160,11 @@ def test_is_stub_function(function, expected_result):
     def foo(cls):
         pass
     """, {}, []),
+    ("""
+    @classmethod
+    def foo(cls, bar):
+        use(cls)
+    """, {}, [(3, 13, "U100 Unused argument 'bar'", 'unused argument')]),
 ])
 def test_integration(function, options, expected_warnings):
     from flake8_unused_arguments import Plugin
