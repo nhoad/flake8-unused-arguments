@@ -52,7 +52,7 @@ def test_get_argument_names(function, expected_names):
 def test_get_unused_arguments(function, expected_names):
     from flake8_unused_arguments import get_unused_arguments
 
-    argument_names = [a.arg for a in get_unused_arguments(get_function(function))]
+    argument_names = [a.arg for _, a in get_unused_arguments(get_function(function))]
     print(argument_names)
     print(expected_names)
     assert argument_names == expected_names

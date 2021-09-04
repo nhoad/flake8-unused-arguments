@@ -70,7 +70,7 @@ class Plugin:
             if self.ignore_stubs and is_stub_function(function):
                 continue
 
-            for i, argument in enumerate(get_unused_arguments(function)):
+            for i, argument in get_unused_arguments(function):
                 name = argument.arg
                 if self.ignore_variadic_names:
                     if function.args.vararg and function.args.vararg.arg == name:
@@ -97,9 +97,9 @@ class Plugin:
                 yield (line_number, offset, text, check)
 
 
-def get_unused_arguments(function: FunctionTypes) -> List[ast.arg]:
+def get_unused_arguments(function: FunctionTypes) -> List[Tuple[int, ast.arg]]:
     """Generator that yields all of the unused arguments in the given function."""
-    arguments = get_arguments(function)
+    arguments = list(enumerate(get_arguments(function)))
 
     class NameFinder(NodeVisitor):
         def visit_Name(self, name: ast.Name) -> None:
@@ -107,7 +107,7 @@ def get_unused_arguments(function: FunctionTypes) -> List[ast.arg]:
             if isinstance(name.ctx, Store):
                 return
 
-            arguments = [arg for arg in arguments if arg.arg != name.id]
+            arguments = [(arg_index, arg) for arg_index, arg in arguments if arg.arg != name.id]
 
     NameFinder().visit(function)
 
