@@ -15,6 +15,9 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.7
+ - The first unused argument in a @classmethod decorated function wasn't properly detected. Thanks to Sebastian Dietrich for contributing the fix!
+
 0.0.6
  - Stub functions that have docstrings are now correctly detected as stub functions
  - Functions with only a docstring are considered stub functions
