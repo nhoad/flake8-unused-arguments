@@ -15,6 +15,9 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.8
+ - Whoops, report the right version when using flake8 --help.
+
 0.0.7
  - The first unused argument in a @classmethod decorated function wasn't properly detected. Thanks to Sebastian Dietrich for contributing the fix!
 

@@ -1,4 +1,5 @@
 import ast
+import subprocess
 import textwrap
 from contextlib import nullcontext
 from unittest.mock import patch
@@ -175,6 +176,20 @@ def test_integration(function, options, expected_warnings):
         print(function)
         print(warnings)
         assert warnings == expected_warnings
+
+
+def test_check_version() -> None:
+    from flake8_unused_arguments import Plugin
+
+    assert get_most_recent_tag() == Plugin.version
+
+
+def get_most_recent_tag() -> str:
+    return (
+        subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True)
+        .strip()
+        .removeprefix("v")
+    )
 
 
 def get_function(text):
