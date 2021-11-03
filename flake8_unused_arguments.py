@@ -107,7 +107,9 @@ def get_unused_arguments(function: FunctionTypes) -> List[Tuple[int, ast.arg]]:
             if isinstance(name.ctx, Store):
                 return
 
-            arguments = [(arg_index, arg) for arg_index, arg in arguments if arg.arg != name.id]
+            arguments = [
+                (arg_index, arg) for arg_index, arg in arguments if arg.arg != name.id
+            ]
 
     NameFinder().visit(function)
 
