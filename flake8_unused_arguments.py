@@ -198,11 +198,12 @@ class FunctionFinder(NodeVisitor):
         super().__init__()
         self.functions = []
 
-    def visit_AsyncFunctionDef(self, function: ast.AsyncFunctionDef) -> None:
+    def visit_function_types(self, function: FunctionTypes) -> None:
         self.functions.append(function)
+        if isinstance(function, ast.Lambda):
+            self.visit(function.body)
+        else:
+            for obj in function.body:
+                self.visit(obj)
 
-    def visit_FunctionDef(self, function: ast.FunctionDef) -> None:
-        self.functions.append(function)
-
-    def visit_Lambda(self, function: ast.Lambda) -> None:
-        self.functions.append(function)
+    visit_AsyncFunctionDef = visit_FunctionDef = visit_Lambda = visit_function_types

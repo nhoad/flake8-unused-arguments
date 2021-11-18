@@ -253,6 +253,39 @@ def test_is_stub_function(function, expected_result):
             {},
             [(3, 13, "U100 Unused argument 'bar'", "unused argument")],
         ),
+        (
+            """
+    def cool(a):
+        def inner(b):
+            pass
+        async def async_inner(c):
+            pass
+    async def async_cool(d):
+        def inner(e):
+            pass
+        async def async_inner(f):
+            pass
+    """,
+            {},
+            [
+                (2, 9, "U100 Unused argument 'a'", "unused argument"),
+                (3, 14, "U100 Unused argument 'b'", "unused argument"),
+                (5, 26, "U100 Unused argument 'c'", "unused argument"),
+                (7, 21, "U100 Unused argument 'd'", "unused argument"),
+                (8, 14, "U100 Unused argument 'e'", "unused argument"),
+                (10, 26, "U100 Unused argument 'f'", "unused argument"),
+            ],
+        ),
+        (
+            """
+    # make sure we detect variables as used when they're referenced in an inner function
+    def cool(a):
+        def inner(c):
+            a()
+    """,
+            {},
+            [(4, 14, "U100 Unused argument 'c'", "unused argument")],
+        ),
     ],
 )
 def test_integration(function, options, expected_warnings):
