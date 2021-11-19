@@ -15,6 +15,10 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.9
+ - Check nested functions.
+ - Don't crash if an attribute is used in a raise statement.
+
 0.0.8
  - Whoops, report the right version when using flake8 --help.
 
