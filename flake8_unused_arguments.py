@@ -17,6 +17,8 @@ class Plugin:
     ignore_abstract = False
     ignore_stubs = False
     ignore_variadic_names = False
+    ignore_lambdas = False
+    ignore_nested_functions = False
 
     def __init__(self, tree: ast.Module):
         self.tree = tree
@@ -50,14 +52,37 @@ class Plugin:
             help="If provided, then unused *args and **kwargs won't produce warnings.",
         )
 
+        option_manager.add_option(
+            "--unused-arguments-ignore-lambdas",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_lambdas,
+            dest="unused_arguments_ignore_lambdas",
+            help="If provided, all lambdas are ignored.",
+        )
+
+        option_manager.add_option(
+            "--unused-arguments-ignore-nested-functions",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_nested_functions,
+            dest="unused_arguments_ignore_nested_functions",
+            help=(
+                "If provided, only functions at the top level of a module or "
+                "methods of a class in the top level of a module are checked.",
+            ),
+        )
+
     @classmethod
     def parse_options(cls, options: optparse.Values) -> None:
         cls.ignore_abstract = options.unused_arguments_ignore_abstract_functions
         cls.ignore_stubs = options.unused_arguments_ignore_stub_functions
         cls.ignore_variadic_names = options.unused_arguments_ignore_variadic_names
+        cls.ignore_lambdas = options.unused_arguments_ignore_lambdas
+        cls.ignore_nested_functions = options.unused_arguments_ignore_nested_functions
 
     def run(self) -> Iterable[LintResult]:
-        finder = FunctionFinder()
+        finder = FunctionFinder(self.ignore_nested_functions)
         finder.visit(self.tree)
 
         for function in finder.functions:
@@ -68,6 +93,10 @@ class Plugin:
 
             # ignore stub functions
             if self.ignore_stubs and is_stub_function(function):
+                continue
+
+            # ignore lambdas
+            if self.ignore_lambdas and isinstance(function, ast.Lambda):
                 continue
 
             for i, argument in get_unused_arguments(function):
@@ -198,12 +227,15 @@ def is_stub_function(function: FunctionTypes) -> bool:
 class FunctionFinder(NodeVisitor):
     functions: List[FunctionTypes]
 
-    def __init__(self) -> None:
+    def __init__(self, only_top_level=False) -> None:
         super().__init__()
         self.functions = []
+        self.only_top_level = only_top_level
 
     def visit_function_types(self, function: FunctionTypes) -> None:
         self.functions.append(function)
+        if self.only_top_level:
+            return
         if isinstance(function, ast.Lambda):
             self.visit(function.body)
         else:

@@ -224,6 +224,44 @@ def test_is_stub_function(function, expected_result):
             [(2, 10, "U100 Unused argument 'kwargs'", "unused argument")],
         ),
         (
+            "foo = lambda a: 1\n",
+            {"ignore_lambdas": True},
+            [],
+        ),
+        (
+            "foo = lambda a: 1\n",
+            {"ignore_lambdas": False},
+            [(1, 13, "U100 Unused argument 'a'", "unused argument")],
+        ),
+        (
+            """
+            def foo(a):
+                def bar(b):
+                    pass
+            zed = lambda c: lambda d: 1
+            """,
+            {"ignore_nested_functions": False},
+            [
+                (2, 8, "U100 Unused argument 'a'", "unused argument"),
+                (3, 12, "U100 Unused argument 'b'", "unused argument"),
+                (5, 13, "U100 Unused argument 'c'", "unused argument"),
+                (5, 23, "U100 Unused argument 'd'", "unused argument"),
+            ],
+        ),
+        (
+            """
+            def foo(a):
+                def bar(b):
+                    pass
+            zed = lambda c: lambda d: 1
+            """,
+            {"ignore_nested_functions": True},
+            [
+                (2, 8, "U100 Unused argument 'a'", "unused argument"),
+                (5, 13, "U100 Unused argument 'c'", "unused argument"),
+            ],
+        ),
+        (
             """
     def foo(_a):
         pass
@@ -307,6 +345,43 @@ def test_check_version() -> None:
     from flake8_unused_arguments import Plugin
 
     assert get_most_recent_tag() == Plugin.version
+
+
+FF_CODE = """
+def some_function(a=1):
+    def some_nested_function(b=1):
+        return b
+    return some_nested_function(a)
+
+class SomeClass:
+    def some_method(a=1):
+        def some_nested_method(b=1):
+            return b
+        return some_nested_method(a)
+"""
+FF_ALL_FUNCTIONS = [
+    "some_function",
+    "some_nested_function",
+    "some_method",
+    "some_nested_method",
+]
+
+
+@pytest.mark.parametrize(
+    "only_top_level, expected",
+    [
+        (False, FF_ALL_FUNCTIONS),
+        (True, [n for n in FF_ALL_FUNCTIONS if "nested" not in n]),
+    ],
+)
+def test_function_finder(only_top_level, expected):
+    from flake8_unused_arguments import FunctionFinder
+
+    finder = FunctionFinder(only_top_level=only_top_level)
+    finder.visit(ast.parse(FF_CODE))
+    names = [node.name for node in finder.functions]
+
+    assert names == expected
 
 
 def get_most_recent_tag() -> str:
