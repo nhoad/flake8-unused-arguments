@@ -19,6 +19,9 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.10
+ - Added new options for ignoring lambdas and nested functions. Thanks to João Eiras for contributing these!
+
 0.0.9
  - Check nested functions.
  - Don't crash if an attribute is used in a raise statement.
