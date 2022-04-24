@@ -227,7 +227,7 @@ def is_stub_function(function: FunctionTypes) -> bool:
 class FunctionFinder(NodeVisitor):
     functions: List[FunctionTypes]
 
-    def __init__(self, only_top_level=False) -> None:
+    def __init__(self, only_top_level: bool = False) -> None:
         super().__init__()
         self.functions = []
         self.only_top_level = only_top_level
@@ -242,4 +242,4 @@ class FunctionFinder(NodeVisitor):
             for obj in function.body:
                 self.visit(obj)
 
-    visit_AsyncFunctionDef = visit_FunctionDef = visit_Lambda = visit_function_types
+    visit_AsyncFunctionDef = visit_FunctionDef = visit_Lambda = visit_function_types  # type: ignore[assignment]
