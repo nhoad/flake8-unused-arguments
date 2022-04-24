@@ -11,6 +11,10 @@ Configuration options also exist:
  - `unused-arguments-ignore-abstract-functions` - don't show warnings for abstract functions.
  - `unused-arguments-ignore-stub-functions` - don't show warnings for empty functions.
  - `unused-arguments-ignore-variadic-names` - don't show warnings for unused *args and **kwargs.
+ - `unused-arguments-ignore-lambdas` - don't show warnings for all lambdas.
+ - `unused-arguments-ignore-nested-functions` - don't show warnings for nested
+   functions. Only show warnings for functions in the top level of a module, or methods
+   of a class in the top level of a module.
 
 
 ## Changelog
