@@ -1,4 +1,5 @@
 import ast
+import re
 import subprocess
 import textwrap
 from contextlib import nullcontext
@@ -386,9 +387,8 @@ def test_function_finder(only_top_level, expected):
 
 def get_most_recent_tag() -> str:
     return (
-        subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True)
-        .strip()
-        .removeprefix("v")
+        re.sub("^v", "", subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True)
+        .strip())
     )
 
 
