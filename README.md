@@ -15,7 +15,11 @@ Configuration options also exist:
  - `unused-arguments-ignore-nested-functions` - don't show warnings for nested
    functions. Only show warnings for functions in the top level of a module, or methods
    of a class in the top level of a module.
-
+ - `unused-arguments-ignore-dunder` - don't show warnings for double-underscore methods.
+   These methods implement or override native builtin methods which have a specific
+   signature. Therefore arguments must always be present. This is the case of methods
+   like `__new__`, `__init__`, `__getitem__`, `__setitem__`, `__reduce_ex__`,
+   `__enter__`, `__exit__`, etc.
 
 ## Changelog
 
