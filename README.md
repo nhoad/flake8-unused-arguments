@@ -9,6 +9,7 @@ This package adds the following warnings:
 
 Configuration options also exist:
  - `unused-arguments-ignore-abstract-functions` - don't show warnings for abstract functions.
+ - `unused-arguments-ignore-overload-functions` - don't show warnings for overload functions.
  - `unused-arguments-ignore-stub-functions` - don't show warnings for empty functions.
  - `unused-arguments-ignore-variadic-names` - don't show warnings for unused *args and **kwargs.
  - `unused-arguments-ignore-lambdas` - don't show warnings for all lambdas.
@@ -22,6 +23,9 @@ Configuration options also exist:
    `__enter__`, `__exit__`, etc.
 
 ## Changelog
+
+0.0.11
+ - Added a new option for ignoring functions decorated with overload.
 
 0.0.10
  - Added new options for ignoring lambdas and nested functions. Thanks to João Eiras for contributing these!

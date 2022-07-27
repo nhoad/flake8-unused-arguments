@@ -15,6 +15,7 @@ class Plugin:
     version = "0.0.10"
 
     ignore_abstract = False
+    ignore_overload = False
     ignore_stubs = False
     ignore_variadic_names = False
     ignore_lambdas = False
@@ -33,6 +34,15 @@ class Plugin:
             default=cls.ignore_abstract,
             dest="unused_arguments_ignore_abstract_functions",
             help="If provided, then unused arguments for functions decorated with abstractmethod will be ignored.",
+        )
+
+        option_manager.add_option(
+            "--unused-arguments-ignore-overload-functions",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_overload,
+            dest="unused_arguments_ignore_overload_functions",
+            help="If provided, then unused arguments for functions decorated with overload will be ignored.",
         )
 
         option_manager.add_option(
@@ -89,6 +99,7 @@ class Plugin:
     @classmethod
     def parse_options(cls, options: optparse.Values) -> None:
         cls.ignore_abstract = options.unused_arguments_ignore_abstract_functions
+        cls.ignore_overload = options.unused_arguments_ignore_overload_functions
         cls.ignore_stubs = options.unused_arguments_ignore_stub_functions
         cls.ignore_variadic_names = options.unused_arguments_ignore_variadic_names
         cls.ignore_lambdas = options.unused_arguments_ignore_lambdas
@@ -101,7 +112,12 @@ class Plugin:
 
         for function in finder.functions:
             decorator_names = set(get_decorator_names(function))
-            # ignore abtractmethods, it's not a surprise when they're empty
+
+            # ignore overload functions, it's not a surprise when they're empty
+            if self.ignore_overload and "overload" in decorator_names:
+                continue
+
+            # ignore abstractmethods, it's not a surprise when they're empty
             if self.ignore_abstract and "abstractmethod" in decorator_names:
                 continue
 

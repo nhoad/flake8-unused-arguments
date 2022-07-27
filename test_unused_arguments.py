@@ -178,6 +178,24 @@ def test_is_stub_function(function, expected_result):
         ),
         (
             """
+    @overload
+    def foo(a):
+        pass
+    """,
+            {"ignore_overload": False},
+            [(3, 8, "U100 Unused argument 'a'", "unused argument")],
+        ),
+        (
+            """
+    @overload
+    def foo(a):
+        pass
+    """,
+            {"ignore_overload": True},
+            [],
+        ),
+        (
+            """
     def foo(a):
         pass
     """,
