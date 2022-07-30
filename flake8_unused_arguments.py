@@ -19,6 +19,7 @@ class Plugin:
     ignore_variadic_names = False
     ignore_lambdas = False
     ignore_nested_functions = False
+    ignore_dunder_methods = False
 
     def __init__(self, tree: ast.Module):
         self.tree = tree
@@ -73,6 +74,18 @@ class Plugin:
             ),
         )
 
+        option_manager.add_option(
+            "--unused-arguments-ignore-dunder",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_dunder_methods,
+            dest="unused_arguments_ignore_dunder_methods",
+            help=(
+                "If provided, all double-underscore methods are ignored, e.g., __new__, _init__, "
+                "__enter__, __exit__, __reduce_ex__, etc.",
+            ),
+        )
+
     @classmethod
     def parse_options(cls, options: optparse.Values) -> None:
         cls.ignore_abstract = options.unused_arguments_ignore_abstract_functions
@@ -80,6 +93,7 @@ class Plugin:
         cls.ignore_variadic_names = options.unused_arguments_ignore_variadic_names
         cls.ignore_lambdas = options.unused_arguments_ignore_lambdas
         cls.ignore_nested_functions = options.unused_arguments_ignore_nested_functions
+        cls.ignore_dunder_methods = options.unused_arguments_ignore_dunder_methods
 
     def run(self) -> Iterable[LintResult]:
         finder = FunctionFinder(self.ignore_nested_functions)
@@ -97,6 +111,10 @@ class Plugin:
 
             # ignore lambdas
             if self.ignore_lambdas and isinstance(function, ast.Lambda):
+                continue
+
+            # ignore __double_underscore_methods__()
+            if self.ignore_dunder_methods and is_dunder_method(function):
                 continue
 
             for i, argument in get_unused_arguments(function):
@@ -222,6 +240,13 @@ def is_stub_function(function: FunctionTypes) -> bool:
             return True
 
     return False
+
+
+def is_dunder_method(function: FunctionTypes) -> bool:
+    if isinstance(function, ast.Lambda):
+        return False
+    name = function.name
+    return name and len(name) > 4 and name.startswith("__") and name.endswith("__")
 
 
 class FunctionFinder(NodeVisitor):

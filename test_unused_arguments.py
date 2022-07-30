@@ -264,6 +264,48 @@ def test_is_stub_function(function, expected_result):
         ),
         (
             """
+            class Foo:
+                def __new__(cls):
+                    return []
+                def __enter__(self):
+                    return self
+                def __exit__(self, exc_tp, exc_v, exc_tb):
+                    return False
+                def __setattr__(self, item, value):
+                    raise ValueError("read-only")
+                def __reduce_ex__(self, protocol):
+                    return Foo, ()
+            """,
+            {"ignore_dunder_methods": False},
+            [
+                (3, 16, "U100 Unused argument 'cls'", "unused argument"),
+                (7, 23, "U100 Unused argument 'exc_tp'", "unused argument"),
+                (7, 31, "U100 Unused argument 'exc_v'", "unused argument"),
+                (7, 38, "U100 Unused argument 'exc_tb'", "unused argument"),
+                (9, 26, "U100 Unused argument 'item'", "unused argument"),
+                (9, 32, "U100 Unused argument 'value'", "unused argument"),
+                (11, 28, "U100 Unused argument 'protocol'", "unused argument"),
+            ],
+        ),
+        (
+            """
+            class Foo:
+                def __new__(cls):
+                    return []
+                def __enter__(self):
+                    return self
+                def __exit__(self, exc_tp, exc_v, exc_tb):
+                    return False
+                def __setattr__(self, item, value):
+                    raise ValueError("read-only")
+                def __reduce_ex__(self, protocol):
+                    return Foo, ()
+            """,
+            {"ignore_dunder_methods": True},
+            [],
+        ),
+        (
+            """
     def foo(_a):
         pass
     """,
