@@ -26,6 +26,7 @@ Configuration options also exist:
 
 0.0.11
  - Added a new option for ignoring functions decorated with overload.
+ - Added a new option for ignoring dunder methods (double-underscore) methods.
 
 0.0.10
  - Added new options for ignoring lambdas and nested functions. Thanks to João Eiras for contributing these!
