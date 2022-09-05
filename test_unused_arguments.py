@@ -402,6 +402,7 @@ def test_integration(function, options, expected_warnings):
         assert warnings == expected_warnings
 
 
+@pytest.mark.release
 def test_check_version() -> None:
     from flake8_unused_arguments import Plugin
 
