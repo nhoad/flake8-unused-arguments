@@ -261,8 +261,12 @@ def is_stub_function(function: FunctionTypes) -> bool:
 def is_dunder_method(function: FunctionTypes) -> bool:
     if isinstance(function, ast.Lambda):
         return False
+
+    if not hasattr(function, "name"):
+        return False
+
     name = function.name
-    return name and len(name) > 4 and name.startswith("__") and name.endswith("__")
+    return len(name) > 4 and name.startswith("__") and name.endswith("__")
 
 
 class FunctionFinder(NodeVisitor):
