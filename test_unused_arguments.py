@@ -446,6 +446,30 @@ def test_function_finder(only_top_level, expected):
     assert names == expected
 
 
+@pytest.mark.parametrize(
+    "code, expected_value",
+    [
+        ("def foo(): pass", False),
+        ("def __foo(): pass", False),
+        ("def foo__(): pass", False),
+        ("def __foo__(): pass", True),
+        ("async def foo(): pass", False),
+        ("async def __foo(): pass", False),
+        ("async def foo__(): pass", False),
+        ("async def __foo__(): pass", True),
+        ("lambda: None", False),
+    ]
+)
+def test_is_dunder_method(code, expected_value):
+    from flake8_unused_arguments import is_dunder_method
+    func = ast.parse(textwrap.dedent(code)).body[0]
+
+    if isinstance(func, ast.Expr):
+        func = func.value
+
+    assert is_dunder_method(func) == expected_value
+
+
 def get_most_recent_tag() -> str:
     return (
         re.sub("^v", "", subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True)
