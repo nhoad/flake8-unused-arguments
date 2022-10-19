@@ -80,7 +80,7 @@ class Plugin:
             dest="unused_arguments_ignore_nested_functions",
             help=(
                 "If provided, only functions at the top level of a module or "
-                "methods of a class in the top level of a module are checked.",
+                "methods of a class in the top level of a module are checked."
             ),
         )
 
@@ -92,7 +92,7 @@ class Plugin:
             dest="unused_arguments_ignore_dunder_methods",
             help=(
                 "If provided, all double-underscore methods are ignored, e.g., __new__, _init__, "
-                "__enter__, __exit__, __reduce_ex__, etc.",
+                "__enter__, __exit__, __reduce_ex__, etc."
             ),
         )
 
