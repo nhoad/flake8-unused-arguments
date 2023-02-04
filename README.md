@@ -25,6 +25,13 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.13
+ - Added a new option for ignoring functions decorated with the override decorator. Thanks to Thomas M Kehrenberg for contributing this!
+
+0.0.12
+ - Fixed an issue causing flake8 --help to break. Thanks to Calum Young for contributing this fix!
+ - Starting from this release, automated CI runs on each Github PR. Thanks again to Calum Young for contributing this work!
+
 0.0.11
  - Added a new option for ignoring functions decorated with overload.
  - Added a new option for ignoring dunder methods (double-underscore) methods.
