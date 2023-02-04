@@ -16,6 +16,7 @@ class Plugin:
 
     ignore_abstract = False
     ignore_overload = False
+    ignore_override = False
     ignore_stubs = False
     ignore_variadic_names = False
     ignore_lambdas = False
@@ -43,6 +44,15 @@ class Plugin:
             default=cls.ignore_overload,
             dest="unused_arguments_ignore_overload_functions",
             help="If provided, then unused arguments for functions decorated with overload will be ignored.",
+        )
+
+        option_manager.add_option(
+            "--unused-arguments-ignore-override-functions",
+            action="store_true",
+            parse_from_config=True,
+            default=cls.ignore_override,
+            dest="unused_arguments_ignore_override_functions",
+            help="If provided, then unused arguments for functions decorated with override will be ignored.",
         )
 
         option_manager.add_option(
@@ -100,6 +110,7 @@ class Plugin:
     def parse_options(cls, options: optparse.Values) -> None:
         cls.ignore_abstract = options.unused_arguments_ignore_abstract_functions
         cls.ignore_overload = options.unused_arguments_ignore_overload_functions
+        cls.ignore_override = options.unused_arguments_ignore_override_functions
         cls.ignore_stubs = options.unused_arguments_ignore_stub_functions
         cls.ignore_variadic_names = options.unused_arguments_ignore_variadic_names
         cls.ignore_lambdas = options.unused_arguments_ignore_lambdas
@@ -115,6 +126,10 @@ class Plugin:
 
             # ignore overload functions, it's not a surprise when they're empty
             if self.ignore_overload and "overload" in decorator_names:
+                continue
+
+            # ignore overridden functions
+            if self.ignore_override and "override" in decorator_names:
                 continue
 
             # ignore abstractmethods, it's not a surprise when they're empty

@@ -196,6 +196,24 @@ def test_is_stub_function(function, expected_result):
         ),
         (
             """
+    @override
+    def foo(a):
+        pass
+    """,
+            {"ignore_override": False},
+            [(3, 8, "U100 Unused argument 'a'", "unused argument")],
+        ),
+        (
+            """
+    @override
+    def foo(a):
+        pass
+    """,
+            {"ignore_override": True},
+            [],
+        ),
+        (
+            """
     def foo(a):
         pass
     """,
