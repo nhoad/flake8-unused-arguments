@@ -11,7 +11,7 @@ LintResult = Tuple[int, int, str, str]
 
 class Plugin:
     name = "flake8-unused-arguments"
-    version = "0.0.13"
+    version = "0.0.14"
 
     ignore_abstract = False
     ignore_overload = False

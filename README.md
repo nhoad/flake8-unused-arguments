@@ -25,6 +25,9 @@ Configuration options also exist:
 
 ## Changelog
 
+0.0.14
+ - Fixed compatibility with Python 3.14. Thanks to John T. Wodder II for contributing the fix!
+
 0.0.13
  - Added a new option for ignoring functions decorated with the override decorator. Thanks to Thomas M Kehrenberg for contributing this!
 
